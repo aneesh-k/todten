@@ -1,0 +1,50 @@
+{
+	"QueryHandler": {
+		"prefix": "qhand",
+		"body": [
+			"public class Query : IRequest<${1:example}>",
+			"        {",
+			"            ",
+			"        }",
+			"",
+			"        public class Handler : IRequestHandler<Query, ${1:example}>",
+			"        {",
+			"            private readonly DataContext _context;",
+			"            public Handler(DataContext context)",
+			"            {",
+			"                _context = context;",
+			"            }",
+			"",
+			"            public async Task<Activity> Handle(Query request, CancellationToken cancellationToken)",
+			"            {",
+			"                //Logic",
+			"            }",
+			"        }"
+		],
+		"description": "QueryHandler"
+	},
+	"Command handlers": {
+		"prefix": "chand",
+		"body": [
+			" public class Command : IRequest",
+			"        {",
+			"",
+			"        }",
+			"",
+			"        public class Handler : IRequestHandler<Command>",
+			"        {",
+			"            private readonly DataContext _context;",
+			"            public Handler(DataContext context)",
+			"            {",
+			"                _context = context;",
+			"            }",
+			"",
+			"            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)",
+			"            {",
+			"                ",
+			"            }",
+			"        }"
+		],
+		"description": "Command handlers"
+	}
+}
