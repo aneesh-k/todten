@@ -17,6 +17,8 @@ namespace Persistence
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+
+
             builder.Entity<Value>()
             .HasData(
                 new Value { Id = 1, Name = "Name 101" },
@@ -24,6 +26,7 @@ namespace Persistence
                 new Value { Id = 3, Name = "Name 103" }
             );
         }
+
 
     }
 }
