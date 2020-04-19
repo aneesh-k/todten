@@ -8,10 +8,10 @@ class ActivitiesStore {
 	//to store Activities List
 	@observable activities: IActivity[] = [];
 
-	@observable activityRegistry = new Map();
+	@observable activityRegistry = new Map<string, IActivity>();
 
 	//to store single Activity
-	@observable activity: IActivity | null = null;
+	@observable activity: IActivity | null | undefined;
 
 	//toggle display of Add/edit form
 	@observable displayAddForm = false;
@@ -19,9 +19,23 @@ class ActivitiesStore {
 	//toggle Activity form
 	@observable displayActivityForm = false;
 
-	@computed get sortActivitiesByDate() {
-		return Array.from(this.activityRegistry.values()).sort(
+	@computed get setActivitiesByDate() {
+		return this.sortActivitiesByDateFunc(
+			Array.from(this.activityRegistry.values())
+		);
+	}
+
+	sortActivitiesByDateFunc(activities: IActivity[]) {
+		const sortedArray = activities.sort(
 			(a, b) => Date.parse(a.date) - Date.parse(b.date)
+		);
+		return Object.entries(
+			sortedArray.reduce((activities, activity) => {
+				activities[activity.date] = activities[activity.date]
+					? [...activities[activity.date], activity]
+					: [activity];
+				return activities;
+			}, {} as { [key: string]: IActivity[] })
 		);
 	}
 
@@ -37,15 +51,37 @@ class ActivitiesStore {
 	};
 
 	//to display Activity form
-	@action getActivity = (id: string) => {
-		this.activity = this.activityRegistry.get(id);
-		this.displayActivityForm = true;
-		this.displayAddForm = false;
+	@action getActivity2 = async (id: string) => {
+		const data = this.activityRegistry.get(id);
+		if (this.activity) {
+			this.activity = data;
+		} else {
+			agent.Activities.details(id)
+				.then((resp) => {
+					this.activity = resp;
+				})
+				.catch((error) => {
+					console.log("No data with the given ID");
+				});
+		}
+	};
+
+	@action getActivity = async (id: string) => {
+		const data = this.activityRegistry.get(id);
+		if (this.activity) {
+			this.activity = data;
+		} else {
+			const resp = await agent.Activities.details(id);
+			try {
+				this.activity = resp;
+			} catch {
+				console.log("No data found with the given ID");
+			}
+		}
 	};
 
 	//Add Activity
 	@action AddActiviy = (activity: IActivity) => {
-		//activity.id = this.activity.id ===null ? this.activity.id: v4() :
 		if (activity.id.length < 1) {
 			activity.id = v4();
 			agent.Activities.create(activity)
@@ -82,26 +118,6 @@ class ActivitiesStore {
 			.catch(() => {
 				console.log("Value not deleted.");
 			});
-	};
-
-	// hide view activity card
-	@action onCancelDetailButton = () => {
-		this.displayActivityForm = false;
-	};
-
-	//to display New Activity form
-	@action displayAddFormTrue = () => {
-		this.displayAddForm = true;
-	};
-
-	@action addActivity = () => {
-		this.activity = null;
-		this.displayAddForm = true;
-	};
-
-	//hide add activity form
-	@action displayAddFormFalse = () => {
-		this.displayAddForm = false;
 	};
 }
 

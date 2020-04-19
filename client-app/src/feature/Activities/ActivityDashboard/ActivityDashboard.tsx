@@ -1,19 +1,11 @@
 import React from "react";
 import { Container, Grid } from "semantic-ui-react";
-import { IActivity } from "../../../app/models/activity";
 import ActivityList from "./ActivityList";
-import ActivityDetail from "../ActivityDetail/ActivityDetail";
-import ActivityForm from "../ActivityDetail/ActivityForm";
 import { observer } from "mobx-react-lite";
 import { useContext } from "react";
 import ActivityStore from "../../../app/stores/activitiesStore";
 
-interface IProps {
-	activities: IActivity[];
-	activity: IActivity | null;
-}
-
-const ActivityDashboard: React.FC<IProps> = (props) => {
+const ActivityDashboard: React.FC = () => {
 	const activityStore = useContext(ActivityStore);
 
 	return (
@@ -22,20 +14,12 @@ const ActivityDashboard: React.FC<IProps> = (props) => {
 				<Grid>
 					<Grid.Column width={8}>
 						<ActivityList
-							key={props.activities.length}
-							activities={props.activities}
+							key={activityStore.activities.length}
+							activities={activityStore.activities}
 						/>
 					</Grid.Column>
-					<Grid.Column width={6}>
-						{activityStore.activity && activityStore.displayActivityForm && (
-							<ActivityDetail activity={props.activity!} />
-						)}
-						{activityStore.displayAddForm && (
-							<ActivityForm
-								key={props.activity?.id}
-								activity={props.activity!}
-							/>
-						)}
+					<Grid.Column width={4}>
+						<h2>Activity Filters</h2>
 					</Grid.Column>
 				</Grid>
 			</Container>

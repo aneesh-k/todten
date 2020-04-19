@@ -7,15 +7,13 @@ import ActivityDashboard from "../../feature/Activities/ActivityDashboard/Activi
 import { useContext } from "react";
 import ActivityStore from "../stores/activitiesStore";
 import "mobx-react-lite/batchingForReactDom";
-import { useState } from "react";
-import { IActivity } from "../models/activity";
+import { Route, withRouter, RouteComponentProps } from "react-router-dom";
+import HomePage from "../../feature/Home/HomePage";
+import ActivityForm from "../../feature/Activities/ActivityForm/ActivityForm";
+import ActivityDetail from "../../feature/Activities/ActivityDetail/ActivityDetail";
 
-const App = () => {
+const App: React.FC<RouteComponentProps> = ({ location }) => {
 	const activityStore = useContext(ActivityStore);
-
-	const activity = () => {
-		return activityStore.activity;
-	};
 
 	useEffect(() => {
 		activityStore.getActivities();
@@ -23,15 +21,25 @@ const App = () => {
 
 	return (
 		<>
-			<NavBar />
-			<Container style={{ marginTop: "7em" }}>
-				<ActivityDashboard
-					activities={activityStore.sortActivitiesByDate}
-					activity={activityStore.activity}
-				/>
-			</Container>
+			<Route exact path="/" component={HomePage} />
+			<Route
+				path="/(.+)"
+				render={() => (
+					<Container style={{ margin: "7em" }}>
+						<NavBar />
+						<Route exact path="/activities" component={ActivityDashboard} />
+						<Route
+							exact
+							key={location.key}
+							path={["/createActivity", "/manage/:id"]}
+							component={ActivityForm}
+						/>
+						<Route exact path="/activities/:id" component={ActivityDetail} />
+					</Container>
+				)}
+			/>
 		</>
 	);
 };
 
-export default observer(App);
+export default withRouter(observer(App));

@@ -1,30 +1,69 @@
-import React from "react";
-import { Card, Image, Button } from "semantic-ui-react";
-import { IActivity } from "../../../app/models/activity";
+import React, { Fragment } from "react";
+import { Loader, Container, Grid } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
 import ActivitiesStore from "../../../app/stores/activitiesStore";
 import { useContext } from "react";
+import { useEffect } from "react";
+import { RouteComponentProps } from "react-router-dom";
+import ActivityDetailInfo from "./ActivityDetailInfo";
+import ActivityDetailChat from "./ActivityDetailChat";
+import ActivityDetailSideBar from "./ActivityDetailSideBar";
+import ActivityHeader from "./ActivityHeader";
 
-interface IProps {
-	activity: IActivity;
+interface IRouteProps {
+	id: string;
 }
 
-const ActivityDetail: React.FC<IProps> = ({ activity }) => {
+const ActivityDetail: React.FC<RouteComponentProps<IRouteProps>> = ({
+	match,
+	history,
+}) => {
 	const activitiesStore = useContext(ActivitiesStore);
+
+	useEffect(() => {
+		activitiesStore.getActivity(match.params.id);
+	}, [activitiesStore.getActivity, activitiesStore, match.params.id]);
+
+	if (!activitiesStore.activity) return <Loader content="loading" />;
+
 	return (
-		<>
-			<Card fluid>
+		<Fragment>
+			<Container>
+				<Grid>
+					<Grid.Column width={10}>
+						<ActivityHeader activity={activitiesStore.activity} />
+						<ActivityDetailInfo activity={activitiesStore.activity} />
+						<ActivityDetailChat />
+					</Grid.Column>
+					<Grid.Column width={6}>
+						<ActivityDetailSideBar />
+					</Grid.Column>
+				</Grid>
+			</Container>
+		</Fragment>
+	);
+};
+
+export default observer(ActivityDetail);
+
+/*
+
+<Card fluid>
 				<Image
-					src={`/assets/categoryImages/${activity.category}.jpg`}
+					src={`/assets/categoryImages/${
+						activitiesStore.activity!.category
+					}.jpg`}
 					wrapped
 					ui={false}
 				/>
 				<Card.Content>
-					<Card.Header>{activity.title}</Card.Header>
+					<Card.Header>{activitiesStore.activity!.title}</Card.Header>
 					<Card.Meta>
-						<span className="date">{activity.date}</span>
+						<span className="date">{activitiesStore.activity!.date}</span>
 					</Card.Meta>
-					<Card.Description>{activity.description}</Card.Description>
+					<Card.Description>
+						{activitiesStore.activity!.description}
+					</Card.Description>
 				</Card.Content>
 				<Card.Content extra>
 					<Button.Group widths={2}>
@@ -32,17 +71,15 @@ const ActivityDetail: React.FC<IProps> = ({ activity }) => {
 							primary
 							color="blue"
 							content="Edit"
-							onClick={activitiesStore.displayAddFormTrue}
+							as={Link}
+							to={`/manage/${activitiesStore.activity.id}`}
 						/>
 						<Button
 							content="Cancel"
-							onClick={activitiesStore.onCancelDetailButton}
+							onClick={() => history.push("/activities")}
 						/>
 					</Button.Group>
 				</Card.Content>
 			</Card>
-		</>
-	);
-};
 
-export default observer(ActivityDetail);
+*/
