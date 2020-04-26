@@ -24,7 +24,8 @@ const ActivityDetail: React.FC<RouteComponentProps<IRouteProps>> = ({
 		activitiesStore.getActivity(match.params.id);
 	}, [activitiesStore.getActivity, activitiesStore, match.params.id]);
 
-	if (!activitiesStore.activity) return <Loader content="loading" />;
+	if (!activitiesStore.activity || activitiesStore.loadingInitial)
+		return <Loader content="loading" active />;
 
 	return (
 		<Fragment>

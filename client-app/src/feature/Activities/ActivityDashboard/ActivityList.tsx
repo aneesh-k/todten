@@ -10,7 +10,7 @@ interface IProps {
 	activities: IActivity[];
 }
 
-const ActivityList: React.FC<IProps> = ({ activities }) => {
+const ActivityList: React.FC = () => {
 	const activityStore = useContext(ActivityStore);
 
 	return (

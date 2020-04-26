@@ -14,10 +14,10 @@ class ActivitiesStore {
 	@observable activity: IActivity | null | undefined;
 
 	//toggle display of Add/edit form
-	@observable displayAddForm = false;
+	@observable loadingInitial = false;
 
-	//toggle Activity form
-	@observable displayActivityForm = false;
+	// //toggle Activity form
+	// @observable displayActivityForm = false;
 
 	@computed get setActivitiesByDate() {
 		return this.sortActivitiesByDateFunc(
@@ -40,84 +40,82 @@ class ActivitiesStore {
 	}
 
 	//get list of activities from the API
-	@action getActivities = () => {
-		agent.Activities.list().then((activity) => {
-			activity.forEach((r) => {
+	@action getActivities = async () => {
+		this.loadingInitial = true;
+		try {
+			const activities = await agent.Activities.list();
+			activities.forEach((r) => {
 				r.date = r.date.split("T")[0];
 				this.activities.push(r);
 				this.activityRegistry.set(r.id, r);
 			});
-		});
-	};
-
-	//to display Activity form
-	@action getActivity2 = async (id: string) => {
-		const data = this.activityRegistry.get(id);
-		if (this.activity) {
-			this.activity = data;
-		} else {
-			agent.Activities.details(id)
-				.then((resp) => {
-					this.activity = resp;
-				})
-				.catch((error) => {
-					console.log("No data with the given ID");
-				});
+			this.loadingInitial = false;
+		} catch (error) {
+			this.loadingInitial = false;
+			console.log(error);
+			console.log("Activities not loaded.");
 		}
 	};
 
+	//to display Activity form
 	@action getActivity = async (id: string) => {
+		this.loadingInitial = true;
 		const data = this.activityRegistry.get(id);
-		if (this.activity) {
+		if (data) {
 			this.activity = data;
 		} else {
-			const resp = await agent.Activities.details(id);
 			try {
+				const resp = await agent.Activities.details(id);
 				this.activity = resp;
 			} catch {
 				console.log("No data found with the given ID");
 			}
 		}
+		this.loadingInitial = false;
 	};
 
 	//Add Activity
-	@action AddActiviy = (activity: IActivity) => {
+	@action AddActiviy = async (activity: IActivity) => {
 		if (activity.id.length < 1) {
 			activity.id = v4();
-			agent.Activities.create(activity)
-				.then((resp) => {
-					this.activityRegistry.set(activity.id, activity);
-					console.log("added");
-					this.displayAddForm = false;
-				})
-				.catch((reason) => {
-					console.log("New activity not added in");
-				});
+			try {
+				await agent.Activities.create(activity);
+				this.activityRegistry.set(activity.id, activity);
+				this.activity = activity;
+				console.log("added");
+			} catch (error) {
+				console.log("Error adding data");
+			}
 		} else {
-			agent.Activities.update(activity.id, activity)
-				.then((resp) => {
-					this.activityRegistry.set(activity.id, activity);
-					console.log("added");
-					this.activity = activity;
-					this.displayAddForm = false;
-				})
-				.catch((reason) => {
-					console.log("New activity not added in");
-				});
+			try {
+				await agent.Activities.update(activity.id, activity);
+				this.activityRegistry.set(activity.id, activity);
+				console.log("added");
+				this.activity = activity;
+			} catch (error) {
+				console.log("activity not updated");
+			}
 		}
 	};
 
-	@action deleteActivity = (id: string) => {
-		agent.Activities.delete(id)
-			.then(() => {
-				this.activityRegistry.delete(id);
-				console.log("deleted");
-				this.activity = null;
-				this.displayAddForm = false;
-			})
-			.catch(() => {
-				console.log("Value not deleted.");
-			});
+	@action deleteActivity = async (id: string) => {
+		try {
+			await agent.Activities.delete(id);
+			this.activityRegistry.delete(id);
+			console.log("deleted");
+			this.activity = null;
+		} catch (error) {
+			console.log("Value not deleted.");
+		}
+
+		// .then(() => {
+		// 	this.activityRegistry.delete(id);
+		// 	console.log("deleted");
+		// 	this.activity = null;
+		// })
+		// .catch(() => {
+		// 	console.log("Value not deleted.");
+		// });
 	};
 }
 
