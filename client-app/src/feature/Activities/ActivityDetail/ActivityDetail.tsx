@@ -1,7 +1,6 @@
 import React, { Fragment } from "react";
 import { Loader, Container, Grid } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
-import ActivitiesStore from "../../../app/stores/activitiesStore";
 import { useContext } from "react";
 import { useEffect } from "react";
 import { RouteComponentProps } from "react-router-dom";
@@ -9,6 +8,7 @@ import ActivityDetailInfo from "./ActivityDetailInfo";
 import ActivityDetailChat from "./ActivityDetailChat";
 import ActivityDetailSideBar from "./ActivityDetailSideBar";
 import ActivityHeader from "./ActivityHeader";
+import { RootStoreContext } from "../../../app/stores/rootStore";
 
 interface IRouteProps {
 	id: string;
@@ -18,7 +18,7 @@ const ActivityDetail: React.FC<RouteComponentProps<IRouteProps>> = ({
 	match,
 	history,
 }) => {
-	const activitiesStore = useContext(ActivitiesStore);
+	const activitiesStore = useContext(RootStoreContext).activityStore;
 
 	useEffect(() => {
 		activitiesStore.getActivity(match.params.id);

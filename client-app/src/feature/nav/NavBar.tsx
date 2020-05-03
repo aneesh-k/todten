@@ -1,9 +1,12 @@
 import React from "react";
-import { Menu, Container } from "semantic-ui-react";
+import { Menu, Container, Image, Dropdown } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
 import { Link, NavLink } from "react-router-dom";
+import { useContext } from "react";
+import { RootStoreContext } from "../../app/stores/rootStore";
 
 const NavBar = () => {
+	const userStore = useContext(RootStoreContext).userStore;
 	return (
 		<>
 			<Menu fixed="top" inverted>
@@ -24,6 +27,33 @@ const NavBar = () => {
 						/> */}
 						Add Activity
 					</Menu.Item>
+					{userStore.User && (
+						<Menu.Item position="right">
+							<Image
+								avatar
+								spaced="right"
+								src={userStore.User.image || "/assets/user.png"}
+							/>
+							<Dropdown
+								pointing="top left"
+								text={`${userStore.User.displayName}`}
+							>
+								<Dropdown.Menu>
+									<Dropdown.Item
+										as={Link}
+										to={`/profile/username`}
+										text="My profile"
+										icon="user"
+									/>
+									<Dropdown.Item
+										onClick={userStore.logout}
+										text="Logout"
+										icon="power"
+									/>
+								</Dropdown.Menu>
+							</Dropdown>
+						</Menu.Item>
+					)}
 				</Container>
 			</Menu>
 		</>

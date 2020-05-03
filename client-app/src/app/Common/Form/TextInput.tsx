@@ -15,7 +15,7 @@ const TextInput: React.FC<IProps> = ({
 }) => {
 	return (
 		<Form.Field error={touched && !!error} type={type} width={width}>
-			<input {...input} placeholder={placeholder} />
+			<input {...input} placeholder={placeholder} autoComplete="new-password" />
 			{touched && error && (
 				<Label basic color="red">
 					{error}

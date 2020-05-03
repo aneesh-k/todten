@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Form, Button, Segment, Grid } from "semantic-ui-react";
 import { useContext } from "react";
-import ActivitiesStore from "../../../app/stores/activitiesStore";
 import { IActivity } from "../../../app/models/activity";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
@@ -16,6 +15,7 @@ import {
 	composeValidators,
 	hasLengthGreaterThan,
 } from "revalidate";
+import { RootStoreContext } from "../../../app/stores/rootStore";
 
 interface IMatchProps {
 	id: string;
@@ -37,7 +37,7 @@ const ActivityForm: React.FC<RouteComponentProps<IMatchProps>> = ({
 	match,
 	history,
 }) => {
-	const activityStore = useContext(ActivitiesStore);
+	const activityStore = useContext(RootStoreContext).activityStore;
 
 	const [activity, setActivity] = useState<IActivity>({
 		id: "",

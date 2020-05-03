@@ -2,11 +2,21 @@ import axios, { AxiosResponse } from "axios";
 import { IActivity } from "../models/activity";
 import { history } from "../..";
 import { toast } from "react-toastify";
+import { IUser, IUserFormValues } from "../models/user";
 
 axios.defaults.baseURL = "http://localhost:5000/api/";
 
+axios.interceptors.request.use(
+	(config) => {
+		const token = window.localStorage.getItem("jwt");
+
+		if (token) config.headers.Authorization = `Bearer ${token}`;
+		return config;
+	},
+	(err) => Promise.reject(err)
+);
+
 axios.interceptors.response.use(undefined, (error) => {
-	console.log(error.response);
 	if (error.message === "Network Error" && !error.response) {
 		toast.error("Network Error - Check for API status");
 	}
@@ -24,10 +34,11 @@ axios.interceptors.response.use(undefined, (error) => {
 	if (status === 500) {
 		toast.error("Server Error - Check console for more info");
 	}
-	if (status === 400 && config.method === "post") {
-		history.push("/notfound");
-	}
-	toast.error("Something went wrong with submittig/retreiving data");
+	// if (status === 400 && config.method === "post") {
+	// 	history.push("/notfound");
+	// }
+	throw error.response;
+	//toast.error("Something went wrong with submittig/retreiving data");
 });
 
 const responseBody = (response: AxiosResponse) => response.data;
@@ -56,6 +67,15 @@ const Activities = {
 	delete: (id: string) => requests.del(`/activities/${id}`),
 };
 
+const Users = {
+	current: (): Promise<IUser> => requests.get("/user"),
+	login: (user: IUserFormValues): Promise<IUser> =>
+		requests.post("/user/login", user),
+	register: (user: IUserFormValues): Promise<IUser> =>
+		requests.post("/user/register", user),
+};
+
 export default {
 	Activities,
+	Users,
 };

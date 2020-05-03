@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import "./styles.css";
-import { Container } from "semantic-ui-react";
+import { Container, Loader } from "semantic-ui-react";
 import NavBar from "../../feature/nav/NavBar";
 import ActivityDashboard from "../../feature/Activities/ActivityDashboard/ActivityDashboard";
 import { useContext } from "react";
-import ActivityStore from "../stores/activitiesStore";
 import "mobx-react-lite/batchingForReactDom";
 import {
 	Route,
@@ -18,16 +17,28 @@ import ActivityForm from "../../feature/Activities/ActivityForm/ActivityForm";
 import ActivityDetail from "../../feature/Activities/ActivityDetail/ActivityDetail";
 import NotFound from "./NotFound";
 import { ToastContainer } from "react-toastify";
+import { RootStoreContext } from "../stores/rootStore";
+import LoginForm from "../../feature/User/LoginForm";
+import ModalContainer from "../Common/Modals/ModalContainer";
 
 const App: React.FC<RouteComponentProps> = ({ location }) => {
-	const activityStore = useContext(ActivityStore);
+	const commonStore = useContext(RootStoreContext).commonStore;
+	const userStore = useContext(RootStoreContext).userStore;
 
 	useEffect(() => {
-		activityStore.getActivities();
-	}, [activityStore]);
+		if (commonStore.token) {
+			userStore.getUser().finally(() => commonStore.setApploading());
+		} else {
+			commonStore.setApploading();
+		}
+	}, [userStore, commonStore]);
+
+	if (!commonStore.appLoading)
+		return <Loader content="loading" active inline="centered" />;
 
 	return (
 		<React.Fragment>
+			<ModalContainer />
 			<ToastContainer position="bottom-right" />
 			<Route exact path="/" component={HomePage} />
 			<Route
@@ -44,6 +55,7 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
 								component={ActivityForm}
 							/>
 							<Route exact path="/activities/:id" component={ActivityDetail} />
+							<Route path="/login" component={LoginForm} />
 							<Route component={NotFound} />
 						</Switch>
 					</Container>

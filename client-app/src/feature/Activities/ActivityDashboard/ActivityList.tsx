@@ -3,15 +3,15 @@ import { IActivity } from "../../../app/models/activity";
 import { Label } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
 import { useContext } from "react";
-import ActivityStore from "../../../app/stores/activitiesStore";
 import ActivityListItem from "./ActivityListItem";
+import { RootStoreContext } from "../../../app/stores/rootStore";
 
 interface IProps {
 	activities: IActivity[];
 }
 
 const ActivityList: React.FC = () => {
-	const activityStore = useContext(ActivityStore);
+	const activityStore = useContext(RootStoreContext).activityStore;
 
 	return (
 		<React.Fragment>

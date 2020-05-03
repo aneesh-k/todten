@@ -1,10 +1,15 @@
 import { observable, action, computed } from "mobx";
-import { createContext } from "react";
 import { IActivity } from "../models/activity";
 import { v4 } from "uuid";
 import agent from "../api/agent";
+import { RootStore } from "./rootStore";
 
-class ActivitiesStore {
+export class ActivitiesStore {
+	rootStore: RootStore;
+	constructor(rootStore: RootStore) {
+		this.rootStore = rootStore;
+	}
+
 	//to store Activities List
 	@observable activities: IActivity[] = [];
 
@@ -119,4 +124,4 @@ class ActivitiesStore {
 	};
 }
 
-export default createContext(new ActivitiesStore());
+//export default createContext(new ActivitiesStore());
