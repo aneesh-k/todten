@@ -4,6 +4,8 @@ import { Segment, Item, Header, Button, Image } from "semantic-ui-react";
 import { IActivity } from "../../../app/models/activity";
 import { observer } from "mobx-react-lite";
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { RootStoreContext } from "../../../app/stores/rootStore";
 
 const activityImageStyle = {
 	filter: "brightness(30%)",
@@ -23,6 +25,8 @@ interface IProps {
 }
 
 const ActivityHeader: React.FC<IProps> = ({ activity }) => {
+	const activityStore = useContext(RootStoreContext).activityStore;
+
 	return (
 		<Segment.Group>
 			<Segment basic attached="top" style={{ padding: "0" }}>
@@ -50,16 +54,31 @@ const ActivityHeader: React.FC<IProps> = ({ activity }) => {
 				</Segment>
 			</Segment>
 			<Segment clearing attached="bottom">
-				<Button color="teal">Join Activity</Button>
-				<Button>Cancel attendance</Button>
-				<Button
-					as={Link}
-					to={`/manage/${activity.id}`}
-					color="orange"
-					floated="right"
-				>
-					Manage Event
-				</Button>
+				{activity.isHost ? (
+					<Button
+						as={Link}
+						to={`/manage/${activity.id}`}
+						color="orange"
+						floated="right"
+					>
+						Manage Event
+					</Button>
+				) : activity.isGoing ? (
+					<Button
+						onClick={activityStore.deleteAttendee}
+						loading={activityStore.attendLoader}
+					>
+						Cancel attendance
+					</Button>
+				) : (
+					<Button
+						onClick={activityStore.addAttendee}
+						loading={activityStore.attendLoader}
+						color="teal"
+					>
+						Join Activity
+					</Button>
+				)}
 			</Segment>
 		</Segment.Group>
 	);

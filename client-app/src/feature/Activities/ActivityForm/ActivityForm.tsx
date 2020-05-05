@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, Button, Segment, Grid } from "semantic-ui-react";
 import { useContext } from "react";
-import { IActivity } from "../../../app/models/activity";
+import { IFormActivity } from "../../../app/models/activity";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { RouteComponentProps } from "react-router-dom";
@@ -39,7 +39,7 @@ const ActivityForm: React.FC<RouteComponentProps<IMatchProps>> = ({
 }) => {
 	const activityStore = useContext(RootStoreContext).activityStore;
 
-	const [activity, setActivity] = useState<IActivity>({
+	const [activity, setActivity] = useState<IFormActivity>({
 		id: "",
 		title: "",
 		description: "",

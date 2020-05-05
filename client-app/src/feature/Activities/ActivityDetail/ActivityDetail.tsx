@@ -37,7 +37,7 @@ const ActivityDetail: React.FC<RouteComponentProps<IRouteProps>> = ({
 						<ActivityDetailChat />
 					</Grid.Column>
 					<Grid.Column width={6}>
-						<ActivityDetailSideBar />
+						<ActivityDetailSideBar activity={activitiesStore.activity} />
 					</Grid.Column>
 				</Grid>
 			</Container>

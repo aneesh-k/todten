@@ -1,8 +1,9 @@
 import { observable, action, computed } from "mobx";
-import { IActivity } from "../models/activity";
+import { IActivity, IAttendee } from "../models/activity";
 import { v4 } from "uuid";
 import agent from "../api/agent";
 import { RootStore } from "./rootStore";
+import { toast } from "react-toastify";
 
 export class ActivitiesStore {
 	rootStore: RootStore;
@@ -21,8 +22,7 @@ export class ActivitiesStore {
 	//toggle display of Add/edit form
 	@observable loadingInitial = false;
 
-	// //toggle Activity form
-	// @observable displayActivityForm = false;
+	@observable attendLoader = false;
 
 	@computed get setActivitiesByDate() {
 		return this.sortActivitiesByDateFunc(
@@ -46,11 +46,16 @@ export class ActivitiesStore {
 
 	//get list of activities from the API
 	@action getActivities = async () => {
+		const user = this.rootStore.userStore.User!;
 		this.loadingInitial = true;
 		try {
 			const activities = await agent.Activities.list();
 			activities.forEach((r) => {
 				r.date = r.date.split("T")[0];
+				r.isHost = r.attendees.some(
+					(x) => x.userName === user.username && x.isHost
+				);
+				r.isGoing = r.attendees.some((x) => x.userName === user.username);
 				this.activities.push(r);
 				this.activityRegistry.set(r.id, r);
 			});
@@ -65,12 +70,17 @@ export class ActivitiesStore {
 	//to display Activity form
 	@action getActivity = async (id: string) => {
 		this.loadingInitial = true;
+		const user = this.rootStore.userStore.User!;
 		const data = this.activityRegistry.get(id);
 		if (data) {
 			this.activity = data;
 		} else {
 			try {
 				const resp = await agent.Activities.details(id);
+				resp.isGoing = resp.attendees.some((r) => r.userName === user.username);
+				resp.isHost = resp.attendees.some(
+					(r) => r.userName === user.username && r.isHost
+				);
 				this.activity = resp;
 			} catch {
 				console.log("No data found with the given ID");
@@ -85,6 +95,16 @@ export class ActivitiesStore {
 			activity.id = v4();
 			try {
 				await agent.Activities.create(activity);
+				const attendee: IAttendee = {
+					isHost: true,
+					userName: this.rootStore.userStore.User!.username,
+					displayName: this.rootStore.userStore.User!.displayName,
+					image: this.rootStore.userStore.User!.image!,
+				};
+				const attendees = [];
+				attendees.push(attendee);
+				activity.isHost = true;
+				activity.attendees = attendees;
 				this.activityRegistry.set(activity.id, activity);
 				this.activity = activity;
 				console.log("added");
@@ -112,15 +132,47 @@ export class ActivitiesStore {
 		} catch (error) {
 			console.log("Value not deleted.");
 		}
+	};
 
-		// .then(() => {
-		// 	this.activityRegistry.delete(id);
-		// 	console.log("deleted");
-		// 	this.activity = null;
-		// })
-		// .catch(() => {
-		// 	console.log("Value not deleted.");
-		// });
+	@action addAttendee = async () => {
+		this.attendLoader = true;
+		try {
+			await agent.Activities.attend(this.activity!.id);
+			if (this.activity) {
+				const newAttendee: IAttendee = {
+					isHost: false,
+					userName: this.rootStore.userStore.User!.username,
+					displayName: this.rootStore.userStore.User!.displayName,
+					image: this.rootStore.userStore.User!.image!,
+				};
+
+				this.activity.attendees.push(newAttendee);
+				this.activity.isGoing = true;
+				this.activityRegistry.set(this.activity.id, this.activity);
+				this.attendLoader = false;
+			}
+		} catch (error) {
+			this.attendLoader = false;
+			toast.error("unable to join the activity");
+		}
+	};
+
+	@action deleteAttendee = async () => {
+		this.attendLoader = true;
+		try {
+			await agent.Activities.unAttend(this.activity!.id);
+			if (this.activity) {
+				this.activity.attendees = this.activity.attendees.filter(
+					(r) => r.userName !== this.rootStore.userStore.User!.username
+				);
+				this.activity.isGoing = false;
+				this.activityRegistry.set(this.activity.id, this.activity);
+				this.attendLoader = false;
+			}
+		} catch (error) {
+			this.attendLoader = false;
+			toast.error("Unable to remove from activity");
+		}
 	};
 }
 
