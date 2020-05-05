@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using API.Middlewares;
 using Application.Activities;
 using Application.Interfaces;
+using AutoMapper;
 using Domain;
 using FluentValidation.AspNetCore;
 using Infrastructure;
@@ -43,6 +44,7 @@ namespace API
         {
             services.AddCors(opt =>
             {
+
                 opt.AddPolicy("CorsPolicy", policy =>
                 {
                     policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
@@ -50,9 +52,11 @@ namespace API
             });
 
             services.AddMediatR(typeof(List.Handler).Assembly);
+            services.AddAutoMapper(typeof(List.Handler));
 
             services.AddDbContext<DataContext>(opt =>
             {
+                opt.UseLazyLoadingProxies();
                 opt.UseSqlite(Configuration.GetConnectionString("Default"));
             });
             services.AddControllers(opt =>
@@ -92,6 +96,13 @@ namespace API
                         ValidateIssuer = false
                     };
                 });
+
+            services.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("IsActivityHost", policy => policy.Requirements.Add(new IsHostRequirement()));
+            });
+
+            services.AddTransient<IAuthorizationHandler, IsHostRequirementHandler>();
 
             services.AddScoped<IjwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
