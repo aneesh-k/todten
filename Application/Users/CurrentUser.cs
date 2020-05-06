@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Interfaces;
@@ -38,7 +39,7 @@ namespace Application.Users
                 {
                     DisplayName = user.DisplayName,
                     Token = _jwtGenerator.CreateToken(user),
-                    Image = null,
+                    Image = user.Photos.FirstOrDefault(r => r.IsMain)?.Url,
                     Username = user.UserName
                 };
 

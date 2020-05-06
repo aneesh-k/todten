@@ -10,6 +10,7 @@ using AutoMapper;
 using Domain;
 using FluentValidation.AspNetCore;
 using Infrastructure;
+using Infrastructure.Images;
 using Infrastructure.Security;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -102,10 +103,15 @@ namespace API
                 opt.AddPolicy("IsActivityHost", policy => policy.Requirements.Add(new IsHostRequirement()));
             });
 
+
+            //implementing handler inerface class
             services.AddTransient<IAuthorizationHandler, IsHostRequirementHandler>();
 
             services.AddScoped<IjwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+
+            services.Configure<CloudinarySettings>(Configuration.GetSection("Cloudinary"));
 
         }
 
