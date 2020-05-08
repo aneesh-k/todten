@@ -1,5 +1,5 @@
 import React from "react";
-import { Menu, Container, Image, Dropdown } from "semantic-ui-react";
+import { Menu, Container, Image as I, Dropdown } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
 import { Link, NavLink } from "react-router-dom";
 import { useContext } from "react";
@@ -7,12 +7,13 @@ import { RootStoreContext } from "../../app/stores/rootStore";
 
 const NavBar = () => {
 	const userStore = useContext(RootStoreContext).userStore;
+
 	return (
 		<>
 			<Menu fixed="top" inverted>
 				<Container>
 					<Menu.Item as={Link} to={"/"}>
-						<img src="assets/logo.png" alt="" />
+						<img src={"assets/logo.png"} alt="" />
 					</Menu.Item>
 
 					<Menu.Item exact name="features" as={NavLink} to={"/activities"}>
@@ -29,7 +30,7 @@ const NavBar = () => {
 					</Menu.Item>
 					{userStore.User && (
 						<Menu.Item position="right">
-							<Image
+							<I
 								avatar
 								spaced="right"
 								src={userStore.User.image || "/assets/user.png"}
@@ -41,7 +42,7 @@ const NavBar = () => {
 								<Dropdown.Menu>
 									<Dropdown.Item
 										as={Link}
-										to={`/profile/username`}
+										to={`/profile/${userStore.User.username}`}
 										text="My profile"
 										icon="user"
 									/>

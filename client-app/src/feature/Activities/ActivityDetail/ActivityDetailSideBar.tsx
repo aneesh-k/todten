@@ -9,7 +9,6 @@ interface IProps {
 }
 
 const ActivityDetailSideBar: React.FC<IProps> = ({ activity }) => {
-	const isHost = false;
 	return (
 		<Fragment>
 			<Segment
@@ -27,7 +26,7 @@ const ActivityDetailSideBar: React.FC<IProps> = ({ activity }) => {
 				<List relaxed divided>
 					{activity.attendees.map((attendee) => (
 						<Item key={attendee.userName} style={{ position: "relative" }}>
-							{isHost && (
+							{attendee.isHost && (
 								<Label
 									style={{ position: "absolute" }}
 									color="orange"
@@ -36,7 +35,7 @@ const ActivityDetailSideBar: React.FC<IProps> = ({ activity }) => {
 									Host
 								</Label>
 							)}
-							<Image size="tiny" src={"/assets/user.png"} />
+							<Image size="tiny" src={attendee.image || "/assets/user.png"} />
 							<Item.Content verticalAlign="middle">
 								<Item.Header as="h3">
 									<Link to={`/profile/${attendee.userName}`}>

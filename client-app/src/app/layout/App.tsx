@@ -18,8 +18,8 @@ import ActivityDetail from "../../feature/Activities/ActivityDetail/ActivityDeta
 import NotFound from "./NotFound";
 import { ToastContainer } from "react-toastify";
 import { RootStoreContext } from "../stores/rootStore";
-import LoginForm from "../../feature/User/LoginForm";
 import ModalContainer from "../Common/Modals/ModalContainer";
+import ProfileDetail from "../../feature/profiles/ProfileDetail";
 
 const App: React.FC<RouteComponentProps> = ({ location }) => {
 	const commonStore = useContext(RootStoreContext).commonStore;
@@ -55,7 +55,7 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
 								component={ActivityForm}
 							/>
 							<Route exact path="/activities/:id" component={ActivityDetail} />
-							<Route path="/login" component={LoginForm} />
+							<Route path="/profile/:username" component={ProfileDetail} />
 							<Route component={NotFound} />
 						</Switch>
 					</Container>

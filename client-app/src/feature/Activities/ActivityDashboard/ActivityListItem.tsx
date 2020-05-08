@@ -28,7 +28,12 @@ const ActivityListItem: React.FC<IProps> = ({ activity }) => {
 								<Item.Header as={Link} to={`/activities/${activity.id}`}>
 									{activity.title}
 								</Item.Header>
-								<Item.Meta>Hosted by {hostedBy.displayName}</Item.Meta>
+								<Item.Meta>
+									Hosted by{" "}
+									<Link to={`/profile/${hostedBy.userName}`}>
+										{hostedBy.displayName}
+									</Link>
+								</Item.Meta>
 								{activity.isGoing && !activity.isHost && (
 									<Item.Meta>
 										<Label
