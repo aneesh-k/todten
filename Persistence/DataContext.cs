@@ -20,6 +20,8 @@ namespace Persistence
 
         public DbSet<UserActivity> UserActivities { get; set; }
 
+        public DbSet<Comment> Comments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
 

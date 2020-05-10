@@ -50,7 +50,13 @@ const PhotoUploadWidget: React.FC<IProps> = ({
 									icon="check"
 									onClick={() => uploadPhoto(photo[0])}
 								/>
-								<Button primary basic negative icon="trash" />
+								<Button
+									primary
+									basic
+									negative
+									icon="trash"
+									onClick={() => setPhoto([])}
+								/>
 							</Button.Group>
 						</Fragment>
 					)}

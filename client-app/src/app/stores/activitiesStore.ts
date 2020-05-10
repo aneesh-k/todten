@@ -4,6 +4,12 @@ import { v4 } from "uuid";
 import agent from "../api/agent";
 import { RootStore } from "./rootStore";
 import { toast } from "react-toastify";
+import {
+	HubConnection,
+	HubConnectionBuilder,
+	LogLevel,
+} from "@microsoft/signalr";
+import { setTimeout } from "timers";
 
 export class ActivitiesStore {
 	rootStore: RootStore;
@@ -23,6 +29,62 @@ export class ActivitiesStore {
 	@observable loadingInitial = false;
 
 	@observable attendLoader = false;
+
+	@observable.ref hubConnection: HubConnection | null = null;
+
+	@action setHubConnection = async (activityId: string) => {
+		this.hubConnection = new HubConnectionBuilder()
+			.withUrl("http://localhost:5000/chat", {
+				accessTokenFactory: () => this.rootStore.commonStore.token!,
+			})
+			.configureLogging(LogLevel.Information)
+			.build();
+
+		this.hubConnection
+			.start()
+			.catch(() => console.log("error starting the connection"))
+			.then(() => {
+				setTimeout(() => {}, 1000);
+				this.hubConnection!.invoke("AddToGroup", activityId)
+					.then(() => {})
+					.catch(() => {
+						console.log("Inside error of then invoek");
+					});
+			})
+			.catch((err) => console.log("Error establishing connection", err));
+
+		// try {
+		// 	await this.hubConnection.start();
+		// } catch (err) {
+		// 	console.log("unable to start and connection failed", err);
+		// }
+
+		// this.hubConnection!.invoke("AddToGroup", activityId).catch((err) =>
+		// 	console.log("err", err)
+		// );
+
+		this.hubConnection.on("ReceiveComment", (comment) => {
+			this.activity!.comments.push(comment);
+		});
+	};
+
+	@action stopHubConnection = (activityId: string) => {
+		this.hubConnection!.invoke("RemoveFromGroup", activityId)
+			.then(() => {
+				this.hubConnection!.stop();
+			})
+			.catch((err) => console.log(err));
+	};
+
+	@action sendComment = async (values: any) => {
+		values.activityId = this.activity!.id;
+		values.username = this.rootStore.userStore.User!.username;
+		try {
+			await this.hubConnection!.invoke("SendComment", values);
+		} catch (err) {
+			console.log(err);
+		}
+	};
 
 	@computed get setActivitiesByDate() {
 		return this.sortActivitiesByDateFunc(
@@ -46,6 +108,9 @@ export class ActivitiesStore {
 
 	//get list of activities from the API
 	@action getActivities = async () => {
+		if (this.rootStore.userStore.User === null) {
+			this.rootStore.userStore.getUser();
+		}
 		const user = this.rootStore.userStore.User!;
 		this.loadingInitial = true;
 		try {
@@ -103,6 +168,7 @@ export class ActivitiesStore {
 				};
 				const attendees = [];
 				attendees.push(attendee);
+				activity.comments = [];
 				activity.isHost = true;
 				activity.attendees = attendees;
 				this.activityRegistry.set(activity.id, activity);
