@@ -4,7 +4,7 @@ using Domain;
 
 namespace Application.Comments
 {
-    public class MappingProfile : Profile
+    public class MappingProfile : AutoMapper.Profile
     {
         public MappingProfile()
         {

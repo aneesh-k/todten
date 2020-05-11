@@ -96,6 +96,14 @@ const Profile = {
 
 	setMainImage: (id: string) => requests.post(`/photo/${id}/setmain`, {}),
 	deletePhoto: (id: string) => requests.del(`/photo/${id}`),
+	follow: (username: string) =>
+		requests.post(`/profile/${username}/follow`, {}),
+	unfollow: (username: string) => requests.del(`/profile/${username}/follow`),
+	getFollowContent: (
+		username: string,
+		predicate: string
+	): Promise<IProfile[]> =>
+		requests.get(`/profile/${username}/follow?predicate=${predicate}`),
 };
 
 export default {

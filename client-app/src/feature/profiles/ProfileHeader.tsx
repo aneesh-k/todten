@@ -14,9 +14,19 @@ import { observer } from "mobx-react-lite";
 
 interface IProps {
 	profile: IProfile;
+	isCurrentUser: boolean;
+	follow: (username: string) => void;
+	unfollow: (username: string) => void;
+	followersLoader: boolean;
 }
 
-const ProfileHeader: React.FC<IProps> = ({ profile }) => {
+const ProfileHeader: React.FC<IProps> = ({
+	profile,
+	isCurrentUser,
+	follow,
+	unfollow,
+	followersLoader,
+}) => {
 	return (
 		<Segment>
 			<Grid>
@@ -36,23 +46,35 @@ const ProfileHeader: React.FC<IProps> = ({ profile }) => {
 				</Grid.Column>
 				<Grid.Column width={4}>
 					<Statistic.Group widths={2}>
-						<Statistic label="Followers" value="5" />
-						<Statistic label="Following" value="42" />
+						<Statistic label="Followers" value={profile.followerCount} />
+						<Statistic label="Following" value={profile.followingCount} />
 					</Statistic.Group>
 					<Divider />
-					<Reveal animated="move">
-						<Reveal.Content visible style={{ width: "100%" }}>
-							<Button fluid color="teal" content="Following" />
-						</Reveal.Content>
-						<Reveal.Content hidden>
-							<Button
-								fluid
-								basic
-								color={true ? "red" : "green"}
-								content={true ? "Unfollow" : "Follow"}
-							/>
-						</Reveal.Content>
-					</Reveal>
+					{!isCurrentUser && (
+						<Reveal animated="move">
+							<Reveal.Content visible style={{ width: "100%" }}>
+								<Button
+									fluid
+									color="teal"
+									content={profile.isFollowed ? "Unfollow" : "Follow"}
+								/>
+							</Reveal.Content>
+							<Reveal.Content hidden>
+								<Button
+									loading={followersLoader}
+									fluid
+									basic
+									color={profile.isFollowed ? "red" : "green"}
+									content={profile.isFollowed ? "Unfollow" : "Follow"}
+									onClick={
+										profile.isFollowed
+											? () => unfollow(profile.userName)
+											: () => follow(profile.userName)
+									}
+								/>
+							</Reveal.Content>
+						</Reveal>
+					)}
 				</Grid.Column>
 			</Grid>
 		</Segment>

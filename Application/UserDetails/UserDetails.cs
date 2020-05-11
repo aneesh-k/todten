@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Errors;
+using Application.Profile;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -18,34 +19,40 @@ namespace Application.UserDetails
 
         public class Handler : IRequestHandler<Query, ProfileDto>
         {
-            private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IProfileReader _profileReader;
+
+            public Handler(IProfileReader profileReader)
             {
-                _context = context;
+                _profileReader = profileReader;
+
             }
 
             public async Task<ProfileDto> Handle(Query request, CancellationToken cancellationToken)
             {
                 //Logic
 
-                var user = await _context.Users.SingleOrDefaultAsync(r => r.UserName == request.UserName);
+                // var user = await _context.Users.SingleOrDefaultAsync(r => r.UserName == request.UserName);
 
-                if (user == null)
-                {
-                    throw new RestExceptions(HttpStatusCode.BadRequest, new
-                    {
-                        username = "No data with the given username"
-                    });
-                }
+                // if (user == null)
+                // {
+                //     throw new RestExceptions(HttpStatusCode.BadRequest, new
+                //     {
+                //         username = "No data with the given username"
+                //     });
+                // }
 
-                return new ProfileDto
-                {
-                    UserName = user.UserName,
-                    Bio = user.Bio,
-                    DisplayName = user.DisplayName,
-                    Image = user.Photos.FirstOrDefault(r => r.IsMain)?.Url,
-                    Photos = user.Photos
-                };
+                // return new ProfileDto
+                // {
+                //     UserName = user.UserName,
+                //     Bio = user.Bio,
+                //     DisplayName = user.DisplayName,
+                //     Image = user.Photos.FirstOrDefault(r => r.IsMain)?.Url,
+                //     Photos = user.Photos
+                // };
+
+                return await _profileReader.GetProfile(request.UserName);
+
+
 
             }
         }

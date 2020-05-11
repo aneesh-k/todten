@@ -15,6 +15,10 @@ export default class ProfileStore {
 	@observable uploadingPhoto = false;
 	@observable setMainLoading = false;
 	@observable delPhotoLoading = false;
+	@observable followersLoader = false;
+	@observable loadingFollowContent = false;
+	@observable followers: IProfile[] = [];
+	@observable following: IProfile[] = [];
 
 	@observable Profile: IProfile | null = null;
 
@@ -25,6 +29,58 @@ export default class ProfileStore {
 			return false;
 		}
 	}
+
+	@action getFollowContent = async (username: string, predicate: string) => {
+		if (predicate === "followers") {
+			this.loadingFollowContent = true;
+			var content = null;
+			try {
+				content = await agent.Profile.getFollowContent(username, "followers");
+				this.followers = content; //
+				this.loadingFollowContent = false;
+			} catch (err) {
+				console.log("unable to get list");
+				this.loadingFollowContent = false;
+			}
+		} else {
+			this.loadingFollowContent = true;
+			try {
+				content = await agent.Profile.getFollowContent(username, "following");
+				this.following = content; //
+				this.loadingFollowContent = false;
+			} catch (err) {
+				console.log("unable to get list");
+				this.loadingFollowContent = false;
+			}
+		}
+	};
+
+	@action follow = async (username: string) => {
+		this.followersLoader = true;
+		try {
+			await agent.Profile.follow(username);
+			this.Profile!.isFollowed = true;
+			this.Profile!.followerCount++;
+
+			this.followersLoader = false;
+		} catch (error) {
+			toast.error("Unable to follow user");
+			this.followersLoader = false;
+		}
+	};
+
+	@action unfollow = async (username: string) => {
+		this.followersLoader = true;
+		try {
+			await agent.Profile.unfollow(username);
+			this.Profile!.isFollowed = false;
+			this.Profile!.followerCount--;
+			this.followersLoader = false;
+		} catch (error) {
+			toast.error("Unable to unfollow user");
+			this.followersLoader = false;
+		}
+	};
 
 	@action getUserProfile = async (username: string) => {
 		this.profileLoader = true;

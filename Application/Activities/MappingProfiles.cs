@@ -1,10 +1,9 @@
 using System.Linq;
-using AutoMapper;
 using Domain;
 
 namespace Application.Activities
 {
-    public class MappingProfiles : Profile
+    public class MappingProfiles : AutoMapper.Profile
     {
         public MappingProfiles()
         {
@@ -13,7 +12,8 @@ namespace Application.Activities
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(sour => sour.AppUser.UserName))
                 .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(sour => sour.AppUser.DisplayName))
                 .ForMember(dest => dest.Image, opt =>
-                        opt.MapFrom(sour => sour.AppUser.Photos.FirstOrDefault(r => r.IsMain).Url));
+                        opt.MapFrom(sour => sour.AppUser.Photos.FirstOrDefault(r => r.IsMain).Url))
+                .ForMember(dest => dest.following, opt => opt.MapFrom<MappingResolver>());
 
 
         }

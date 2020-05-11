@@ -4,6 +4,9 @@ export interface IProfile {
 	image: string;
 	bio: string;
 	photos: IPhotos[];
+	isFollowed: boolean;
+	followerCount: number;
+	followingCount: number;
 }
 
 export interface IPhotos {

@@ -14,5 +14,11 @@ namespace Application.UserDetails
         public string Bio { get; set; }
 
         public ICollection<Photo> Photos { get; set; }
+
+        public bool isFollowed { get; set; }
+
+        public int FollowerCount { get; set; }
+
+        public int FollowingCount { get; set; }
     }
 }

@@ -37,4 +37,5 @@ export interface IAttendee {
 	displayName: string;
 	isHost: boolean;
 	image: string;
+	following?: boolean;
 }
